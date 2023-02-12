@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -260,43 +261,46 @@ public class LookClose extends Trait implements Toggleable {
 
     @Override
     public void run() {
-        if (!npc.isSpawned())
+        if (!this.npc.isSpawned()) {
             return;
-
-        if (enableRandomLook) {
-            if (!npc.getNavigator().isNavigating() && lookingAt == null && t <= 0) {
-                randomLook();
-                t = randomLookDelay;
-            }
         }
-        t--;
-
-        if (!enabled)
-            return;
-
-        if (npc.getNavigator().isNavigating() && disableWhileNavigating())
-            return;
-
-        npc.getEntity().getLocation(NPC_LOCATION);
-        findNewTarget();
-
-        if (npc.getNavigator().isNavigating()) {
-            npc.getNavigator().setPaused(lookingAt != null);
+        if (this.enableRandomLook && !this.npc.getNavigator().isNavigating() && this.lookingAt == null && this.t <= 0) {
+            this.randomLook();
+            this.t = this.randomLookDelay;
         }
-
-        if (lookingAt == null)
+        --this.t;
+        if (!this.enabled) {
             return;
-
-        RotationTrait rot = npc.getOrAddTrait(RotationTrait.class);
-        rot.getGlobalParameters().headOnly(headOnly);
-        rot.getPhysicalSession().rotateToFace(lookingAt);
-
-        if (npc.getEntity().getType().name().equals("SHULKER")) {
-            boolean wasSilent = npc.getEntity().isSilent();
-            npc.getEntity().setSilent(true);
-            NMS.setPeekShulker(npc.getEntity(), 100 - 4 * (int) Math
-                    .floor(npc.getStoredLocation().distanceSquared(lookingAt.getLocation(PLAYER_LOCATION))));
-            npc.getEntity().setSilent(wasSilent);
+        }
+        if (this.npc.getNavigator().isNavigating() && this.disableWhileNavigating()) {
+            return;
+        }
+        this.npc.getEntity().getLocation(NPC_LOCATION);
+        this.findNewTarget();
+        if (this.npc.getNavigator().isNavigating()) {
+            this.npc.getNavigator().setPaused(this.lookingAt != null);
+        }
+        if (this.lookingAt == null) {
+            return;
+        }
+        RotationTrait rot = this.npc.getOrAddTrait(RotationTrait.class);
+        rot.getGlobalParameters().headOnly(true);
+        RotationTrait.PacketRotationTriple triple = new RotationTrait.PacketRotationTriple(this.npc.getEntity());
+        Location target = this.lookingAt.getLocation().clone();
+        Location stored = this.npc.getStoredLocation().clone();
+        target.setY(target.getY() + NMS.getHeight(this.lookingAt));
+        double dx = target.getX() - stored.getX();
+        double dy = target.getY() - (stored.getY() + NMS.getHeight(this.npc.getEntity()));
+        double dz = target.getZ() - stored.getZ();
+        double diag = Math.sqrt((float)(dx * dx + dz * dz));
+        float pitch = (float)(-Math.toDegrees(Math.atan2(dy, diag)));
+        float yaw = (float)Math.toDegrees(Math.atan2(target.getZ() - stored.getZ(), target.getX() - stored.getX())) - 90.0f;
+        rot.getPhysicalSession().rotateToHave(yaw, pitch);
+        if (this.npc.getEntity().getType().name().equals("SHULKER")) {
+            boolean wasSilent = this.npc.getEntity().isSilent();
+            this.npc.getEntity().setSilent(true);
+            NMS.setPeekShulker(this.npc.getEntity(), 100 - 4 * (int)Math.floor(stored.distanceSquared(this.lookingAt.getLocation(PLAYER_LOCATION))));
+            this.npc.getEntity().setSilent(wasSilent);
         }
     }
 

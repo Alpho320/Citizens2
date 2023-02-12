@@ -76,4 +76,16 @@ public class AdminCommands {
         plugin.storeNPCs(args.hasFlag('a'));
         Messaging.sendTr(sender, Messages.CITIZENS_SAVED);
     }
+
+    @Command(aliases={"citizens"}, usage="npcekle", desc="Load Citizens fresh from disk, without saving first", modifiers={"npcekle", "npceklee"}, min=1, max=2, permission="citizens.admin")
+    public void npcEkle(CommandContext args, CommandSender sender, NPC npc) throws CommandException {
+        int integer = args.getInteger(1);
+        Citizens.CITIZENS.add(integer);
+        sender.sendMessage(integer + " idli npc eklendi!");
+        sender.sendMessage("Kayıtlı npcler:");
+        for (Integer citizen : Citizens.CITIZENS) {
+            sender.sendMessage(" " + citizen);
+        }
+    }
+
 }

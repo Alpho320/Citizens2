@@ -9,6 +9,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import net.citizensnpcs.Citizens;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -192,12 +194,13 @@ public class RotationTrait extends Trait {
             }
             session.run(triple);
             if (!session.isActive()) {
+                Bukkit.broadcastMessage("!session");
                 triple = null;
             }
         }
     }
 
-    private static class PacketRotationTriple extends EntityRotation {
+    public static class PacketRotationTriple extends EntityRotation {
         private float lastBodyYaw;
         private float lastHeadYaw;
         private float lastPitch;
@@ -222,7 +225,7 @@ public class RotationTrait extends Trait {
 
     public static class RotationParams implements Persistable, Cloneable {
         private Function<Player, Boolean> filter;
-        private boolean headOnly = false;
+        private boolean headOnly = true;
         private boolean immediate = false;
         private float maxPitchPerTick = 10;
         private float maxYawPerTick = 40;
@@ -250,7 +253,7 @@ public class RotationTrait extends Trait {
         }
 
         public RotationParams headOnly(boolean headOnly) {
-            this.headOnly = headOnly;
+            this.headOnly = true;
             return this;
         }
 
@@ -262,7 +265,7 @@ public class RotationTrait extends Trait {
         @Override
         public void load(DataKey key) {
             if (key.keyExists("headOnly")) {
-                headOnly = key.getBoolean("headOnly");
+                headOnly = true; //key.getBoolean("headOnly");
             }
             if (key.keyExists("immediate")) {
                 immediate = key.getBoolean("immediate");
@@ -449,13 +452,25 @@ public class RotationTrait extends Trait {
         }
 
         private void run(RotationTriple rot) {
-            if (!isActive())
+            if (!isActive()) {
+                //
+                if (Citizens.CITIZENS.contains(npc.getId())) {
+                    //Bukkit.broadcastMessage("!isactive");
+                    if (rot.bodyYaw > 0 && rot.bodyYaw <= 90) {
+                        Bukkit.broadcastMessage("rotate 0 0");
+                        rotateToHave(0, 0);
+                    } else {
+                        //Bukkit.broadcastMessage("!rotate -180 0");
+                        //trotateToHave(-180, 0);
+                    }
+                }
                 return;
+            }
 
             rot.headYaw = params.immediate ? getTargetYaw()
                     : Util.clamp(params.rotateHeadYawTowards(t, rot.headYaw, getTargetYaw()));
 
-            if (!params.headOnly) {
+            if (!params.headOnly && !Citizens.CITIZENS.contains(npc.getId())) {
                 float d = Util.clamp(rot.headYaw - 20);
                 if (d > rot.bodyYaw) {
                     rot.bodyYaw = d;
@@ -471,17 +486,42 @@ public class RotationTrait extends Trait {
             rot.pitch = params.immediate ? getTargetPitch() : params.rotatePitchTowards(t, rot.pitch, getTargetPitch());
             t++;
 
-            if (Math.abs(rot.pitch - getTargetPitch()) + Math.abs(rot.headYaw - getTargetYaw()) < 0.1) {
+            //Bukkit.broadcastMessage("RunBodyYaw-HeadYaw: " +  rot.bodyYaw + " - " + rot.headYaw);
+            if (Citizens.CITIZENS.contains(npc.getId())) {
+                if (rot.bodyYaw > 0 && rot.bodyYaw <= 90) { // must -180 - 0 88.58223 - -234.15111
+                    if (rot.headYaw > 45) {
+                        rot.headYaw = 45;
+                    } else if (rot.headYaw < 0) {
+                        float clone = rot.headYaw * -1;
+                        if (clone > 45) {
+                            rot.headYaw = -45;
+                        }
+                    }
+                } else {
+                    if (rot.headYaw > 0) {
+                        if (rot.headYaw < 135) {
+                            rot.headYaw = 135;
+                        }
+                    } else {
+                        float clone = rot.headYaw * -1;
+                        if (clone < 135) {
+                            rot.headYaw = -135;
+                        }
+                    }
+                }
+            }
+
+            /*if (Math.abs(rot.pitch - getTargetPitch()) + Math.abs(rot.headYaw - getTargetYaw()) < 0.1) {
                 t = -1;
                 rot.bodyYaw = rot.headYaw;
-            }
+            }*/
 
             rot.apply();
         }
     }
 
     private static abstract class RotationTriple implements Cloneable {
-        public float bodyYaw, headYaw, pitch;
+        protected float bodyYaw, headYaw, pitch;
 
         public RotationTriple(float bodyYaw, float headYaw, float pitch) {
             this.bodyYaw = bodyYaw;

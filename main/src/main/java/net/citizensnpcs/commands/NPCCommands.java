@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import net.citizensnpcs.trait.LookCloseHead;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.DyeColor;
@@ -1491,6 +1492,21 @@ public class NPCCommands {
             Messaging.sendTr(sender, trait.toggle() ? Messages.LOOKCLOSE_SET : Messages.LOOKCLOSE_STOPPED,
                     npc.getName());
         }
+    }
+
+    @Command(
+            aliases = { "npc" },
+            usage = "lookclosehead ",
+            desc = "Toggle whether a NPC will look when a player is near",
+            modifiers = { "lookclose", "look" },
+            min = 1,
+            max = 1,
+            flags = "r",
+            permission = "citizens.npc.lookclose")
+    public void lookCloseHead(CommandContext args, CommandSender sender, NPC npc) throws CommandException {
+        boolean toggle = true;
+        LookCloseHead trait = npc.getOrAddTrait(LookCloseHead.class);
+        trait.run();
     }
 
     @Command(

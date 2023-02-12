@@ -1,6 +1,7 @@
 package net.citizensnpcs;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -83,6 +84,7 @@ import net.citizensnpcs.util.Util;
 import net.milkbowl.vault.economy.Economy;
 
 public class Citizens extends JavaPlugin implements CitizensPlugin {
+    public static final List<Integer> CITIZENS = new ArrayList<Integer>();
     private final List<NPCRegistry> anonymousRegistries = Lists.newArrayList();
     private final List<NPCRegistry> citizensBackedRegistries = Lists.newArrayList();
     private final CommandManager commands = new CommandManager();
@@ -148,6 +150,13 @@ public class Citizens extends JavaPlugin implements CitizensPlugin {
     private CitizensSpeechFactory speechFactory;
     private final Map<String, NPCRegistry> storedRegistries = Maps.newHashMap();
     private CitizensTraitFactory traitFactory;
+
+    static {
+        CITIZENS.add(29);
+        CITIZENS.add(32);
+        CITIZENS.add(35);
+        CITIZENS.add(43);
+    }
 
     @Override
     public NPCRegistry createAnonymousNPCRegistry(NPCDataStore store) {
