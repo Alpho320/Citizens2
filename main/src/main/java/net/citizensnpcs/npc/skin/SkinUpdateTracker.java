@@ -23,6 +23,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 
 import net.citizensnpcs.Settings.Setting;
 import net.citizensnpcs.api.CitizensAPI;
@@ -170,6 +171,7 @@ public class SkinUpdateTracker {
      */
     public void onNPCDespawn(NPC npc) {
         Preconditions.checkNotNull(npc);
+        playerTrackers.remove(npc.getUniqueId());
         SkinnableEntity skinnable = getSkinnable(npc);
         if (skinnable == null)
             return;
@@ -268,16 +270,8 @@ public class SkinUpdateTracker {
      * </p>
      */
     public void reset() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player.hasMetadata("NPC"))
-                continue;
-
-            PlayerTracker tracker = playerTrackers.get(player.getUniqueId());
-            if (tracker == null)
-                continue;
-
-            tracker.hardReset(player);
-        }
+        navigating.clear();
+        playerTrackers.clear();
     }
 
     // hard reset players near a skinnable NPC
@@ -342,9 +336,9 @@ public class SkinUpdateTracker {
                 return;
 
             List<SkinnableEntity> nearby = new ArrayList<SkinnableEntity>(10);
-            Collection<? extends Player> players = Bukkit.getOnlinePlayers();
-
-            for (Player player : players) {
+            Set<UUID> seen = Sets.newHashSet();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                seen.add(player.getUniqueId());
                 if (player.hasMetadata("NPC"))
                     continue;
 
@@ -358,6 +352,7 @@ public class SkinUpdateTracker {
 
                 nearby.clear();
             }
+            playerTrackers.keySet().removeIf(uuid -> !seen.contains(uuid));
         }
     }
 
@@ -417,6 +412,12 @@ public class SkinUpdateTracker {
         boolean shouldUpdate(Player player) {
             Location currentLoc = player.getLocation(CACHE_LOCATION);
 
+            // make sure player is in same world
+            if (!currentLoc.getWorld().equals(this.location.getWorld())) {
+                hardReset(player);
+                return true;
+            }
+
             if (!hasMoved) {
                 hasMoved = true;
                 return true;
@@ -440,12 +441,6 @@ public class SkinUpdateTracker {
                 }
             }
 
-            // make sure player is in same world
-            if (!currentLoc.getWorld().equals(this.location.getWorld())) {
-                reset(player);
-                return true;
-            }
-
             // update every time a player moves a certain distance
             if (currentLoc.distance(this.location) > MOVEMENT_SKIN_UPDATE_DISTANCE) {
                 reset(player);
@@ -467,7 +462,7 @@ public class SkinUpdateTracker {
     }
 
     private static final Location CACHE_LOCATION = new Location(null, 0, 0, 0);
-    private static final float FIELD_OF_VIEW = 70f;
+    private static final float FIELD_OF_VIEW = 70F;
     private static final int MOVEMENT_SKIN_UPDATE_DISTANCE = 25;
     private static final Location NPC_LOCATION = new Location(null, 0, 0, 0);
 }

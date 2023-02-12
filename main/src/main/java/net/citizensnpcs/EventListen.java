@@ -387,6 +387,7 @@ public class EventListen implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
+        skinUpdateTracker.removePlayer(event.getPlayer().getUniqueId());
         if (CitizensAPI.getNPCRegistry().getNPC(event.getPlayer()) == null)
             return;
         NMS.removeFromServerPlayerList(event.getPlayer());
@@ -631,6 +632,7 @@ public class EventListen implements Listener {
                 Messaging.debug("Despawned", npc, "due to world unload at", event.getWorld().getName());
             }
         }
+        CitizensAPI.getLocationLookup().onWorldUnload(event);
     }
 
     private void respawnAllFromCoord(ChunkCoord coord, Event event) {

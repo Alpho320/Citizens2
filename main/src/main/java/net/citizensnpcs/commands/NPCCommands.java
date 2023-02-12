@@ -119,6 +119,7 @@ import net.citizensnpcs.trait.GameModeTrait;
 import net.citizensnpcs.trait.Gravity;
 import net.citizensnpcs.trait.HologramTrait;
 import net.citizensnpcs.trait.HologramTrait.HologramDirection;
+import net.citizensnpcs.trait.HomeTrait;
 import net.citizensnpcs.trait.HorseModifiers;
 import net.citizensnpcs.trait.LookClose;
 import net.citizensnpcs.trait.MirrorTrait;
@@ -1166,6 +1167,52 @@ public class NPCCommands {
 
     @Command(
             aliases = { "npc" },
+            usage = "homeloc --location [loc] --delay [delay] --distance [distance] -h(ere) -p(athfind) -t(eleport)",
+            desc = "Controls home location",
+            modifiers = { "home" },
+            min = 1,
+            max = 1,
+            flags = "pth",
+            permission = "citizens.npc.home")
+    @Requirements(ownership = true, selected = true)
+    public void home(CommandContext args, CommandSender sender, NPC npc, @Flag("location") Location loc,
+            @Flag("delay") Integer delay, @Flag("distance") Double distance) throws CommandException {
+        HomeTrait trait = npc.getOrAddTrait(HomeTrait.class);
+        String output = "";
+        if (args.hasFlag('h')) {
+            if (!(sender instanceof Player))
+                throw new RequirementMissingException(Messaging.tr(CommandMessages.REQUIREMENTS_MUST_BE_LIVING_ENTITY));
+            trait.setHomeLocation(((Player) sender).getLocation());
+            output += Messaging.tr(Messages.HOME_TRAIT_LOCATION_SET, Util.prettyPrintLocation(trait.getHomeLocation()));
+        }
+        if (loc != null) {
+            trait.setHomeLocation(loc);
+            output += " "
+                    + Messaging.tr(Messages.HOME_TRAIT_LOCATION_SET, Util.prettyPrintLocation(trait.getHomeLocation()));
+        }
+        if (distance != null) {
+            trait.setDistanceBlocks(distance);
+            output += " " + Messaging.tr(Messages.HOME_TRAIT_DISTANCE_SET, trait.getDistanceBlocks());
+        }
+        if (args.hasFlag('p')) {
+            trait.setReturnStrategy(HomeTrait.ReturnStrategy.PATHFIND);
+            output += " " + Messaging.tr(Messages.HOME_TRAIT_PATHFIND_SET, npc.getName());
+        }
+        if (args.hasFlag('t')) {
+            trait.setReturnStrategy(HomeTrait.ReturnStrategy.TELEPORT);
+            output += " " + Messaging.tr(Messages.HOME_TRAIT_TELEPORT_SET, npc.getName());
+        }
+        if (delay != null) {
+            trait.setDelayTicks(delay);
+            output += " " + Messaging.tr(Messages.HOME_TRAIT_DELAY_SET, delay);
+        }
+        if (!output.isEmpty()) {
+            Messaging.send(sender, output.trim());
+        }
+    }
+
+    @Command(
+            aliases = { "npc" },
             usage = "horse|donkey|mule (--color color) (--type type) (--style style) (-cb)",
             desc = "Sets horse and horse-like entity modifiers",
             help = "Use the -c flag to make the NPC have a chest, or the -b flag to stop them from having a chest.",
@@ -1607,17 +1654,23 @@ public class NPCCommands {
     @Command(
             aliases = { "npc" },
             modifiers = { "mirror" },
-            usage = "mirror",
+            usage = "mirror --name [true|false]",
             desc = "Controls mirroring of NPC skins and more",
             min = 1,
             max = 1,
             permission = "citizens.npc.mirror")
     @Requirements(selected = true, ownership = true)
-    public void mirror(CommandContext args, CommandSender sender, NPC npc) {
+    public void mirror(CommandContext args, CommandSender sender, NPC npc, @Flag("name") Boolean name) {
         MirrorTrait trait = npc.getOrAddTrait(MirrorTrait.class);
-        boolean enabled = !trait.isEnabled();
-        trait.setEnabled(enabled);
-        Messaging.sendTr(sender, enabled ? Messages.MIRROR_SET : Messages.MIRROR_UNSET, npc.getName());
+        if (name != null) {
+            trait.setEnabled(true);
+            trait.setMirrorName(name);
+            Messaging.sendTr(sender, name ? Messages.MIRROR_NAME_SET : Messages.MIRROR_NAME_UNSET, npc.getName());
+        } else {
+            boolean enabled = !trait.isEnabled();
+            trait.setEnabled(enabled);
+            Messaging.sendTr(sender, enabled ? Messages.MIRROR_SET : Messages.MIRROR_UNSET, npc.getName());
+        }
     }
 
     @Command(
