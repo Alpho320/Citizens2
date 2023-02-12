@@ -488,6 +488,7 @@ public class RotationTrait extends Trait {
 
             //Bukkit.broadcastMessage("RunBodyYaw-HeadYaw: " +  rot.bodyYaw + " - " + rot.headYaw);
             if (Citizens.CITIZENS.contains(npc.getId())) {
+                Bukkit.broadcastMessage("RunBodyYaw-HeadYaw: " +  rot.bodyYaw + " - " + rot.headYaw);
                 if (rot.bodyYaw > 0 && rot.bodyYaw <= 90) { // must -180 - 0 88.58223 - -234.15111
                     if (rot.headYaw > 45) {
                         rot.headYaw = 45;
