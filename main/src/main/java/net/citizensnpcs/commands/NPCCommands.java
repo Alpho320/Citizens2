@@ -1545,10 +1545,9 @@ public class NPCCommands {
             aliases = { "npc" },
             usage = "lookclosehead ",
             desc = "Toggle whether a NPC will look when a player is near",
-            modifiers = { "lookclose", "look" },
+            modifiers = {},
             min = 1,
             max = 1,
-            flags = "r",
             permission = "citizens.npc.lookclose")
     public void lookCloseHead(CommandContext args, CommandSender sender, NPC npc) throws CommandException {
         boolean toggle = true;
