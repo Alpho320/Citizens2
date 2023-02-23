@@ -152,10 +152,17 @@ public class Citizens extends JavaPlugin implements CitizensPlugin {
     private CitizensTraitFactory traitFactory;
 
     static {
-        CITIZENS.add(29);
-        CITIZENS.add(32);
-        CITIZENS.add(35);
-        CITIZENS.add(43);
+        CITIZENS.add(67);
+        CITIZENS.add(69);
+        CITIZENS.add(92);
+        CITIZENS.add(96);
+        CITIZENS.add(98);
+        CITIZENS.add(105);
+        CITIZENS.add(130);
+        CITIZENS.add(116);
+        CITIZENS.add(100);
+        CITIZENS.add(109);
+        CITIZENS.add(102);
     }
 
     @Override

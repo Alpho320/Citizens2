@@ -860,7 +860,7 @@ public class NPCCommands {
                 }
                 npc.getOrAddTrait(Spawned.class).setSpawned(false);
                 npc.despawn(DespawnReason.REMOVAL);
-                Messaging.sendTr(sender, Messages.NPC_DESPAWNED, npc.getName());
+                //Messaging.sendTr(sender, Messages.NPC_DESPAWNED, npc.getName());
             }
         };
         if (npc == null || args.argsLength() == 2) {
@@ -2792,7 +2792,7 @@ public class NPCCommands {
                 }
                 if (respawn.spawn(location, SpawnReason.COMMAND)) {
                     selector.select(sender, respawn);
-                    Messaging.sendTr(sender, Messages.NPC_SPAWNED, respawn.getName());
+                    //Messaging.sendTr(sender, Messages.NPC_SPAWNED, respawn.getName());
                 }
             }
         };

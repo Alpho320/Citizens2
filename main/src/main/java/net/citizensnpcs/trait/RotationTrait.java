@@ -457,7 +457,7 @@ public class RotationTrait extends Trait {
                 if (Citizens.CITIZENS.contains(npc.getId())) {
                     //Bukkit.broadcastMessage("!isactive");
                     if (rot.bodyYaw > 0 && rot.bodyYaw <= 90) {
-                        Bukkit.broadcastMessage("rotate 0 0");
+                        //Bukkit.broadcastMessage("rotate 0 0");
                         rotateToHave(0, 0);
                     } else {
                         //Bukkit.broadcastMessage("!rotate -180 0");
@@ -488,7 +488,7 @@ public class RotationTrait extends Trait {
 
             //Bukkit.broadcastMessage("RunBodyYaw-HeadYaw: " +  rot.bodyYaw + " - " + rot.headYaw);
             if (Citizens.CITIZENS.contains(npc.getId())) {
-                Bukkit.broadcastMessage(npc.getId() + "-RunBodyYaw-HeadYaw: " +  rot.bodyYaw + " - " + rot.headYaw);
+                //Bukkit.broadcastMessage(npc.getId() + "-RunBodyYaw-HeadYaw: " +  rot.bodyYaw + " - " + rot.headYaw);
                 if (rot.bodyYaw > 0 && rot.bodyYaw <= 90) { // must -180 - 0 88.58223 - -234.15111
                     if (rot.headYaw > 45) {
                         rot.headYaw = 45;
@@ -506,6 +506,12 @@ public class RotationTrait extends Trait {
                             rot.headYaw = -40;
                         } else if (clone > 130) {
                             rot.headYaw = -140;
+                        }
+                    } else if (intBodyYaw == 90 || intBodyYaw == 91) {
+                        if (rot.headYaw > 130) {
+                            rot.headYaw = 130;
+                        } else if (rot.headYaw < 50) {
+                            rot.headYaw = 50;
                         }
                     } else {
                         if (rot.headYaw > 0) {
