@@ -157,12 +157,27 @@ public class Citizens extends JavaPlugin implements CitizensPlugin {
         CITIZENS.add(92);
         CITIZENS.add(96);
         CITIZENS.add(98);
-        CITIZENS.add(105);
-        CITIZENS.add(130);
-        CITIZENS.add(116);
         CITIZENS.add(100);
-        CITIZENS.add(109);
+        CITIZENS.add(101);
         CITIZENS.add(102);
+        CITIZENS.add(103);
+        CITIZENS.add(105);
+        CITIZENS.add(109);
+        CITIZENS.add(114);
+        CITIZENS.add(112);
+        CITIZENS.add(116);
+        CITIZENS.add(118);
+        CITIZENS.add(128);
+        CITIZENS.add(130);
+        CITIZENS.add(133);
+        CITIZENS.add(135);
+        CITIZENS.add(139);
+        CITIZENS.add(142);
+        CITIZENS.add(145);
+        CITIZENS.add(147);
+        CITIZENS.add(149);
+        CITIZENS.add(151);
+        CITIZENS.add(153);
     }
 
     @Override
